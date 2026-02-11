@@ -230,7 +230,7 @@ function attachRemoveListeners() {
 
 // Open modal with plant details
 function openModal(plant) {
-  document.getElementById("modalImage").src = "assets/about.png";
+  document.getElementById("modalImage").src = "Green Earth Project/assets/about.png";
   document.getElementById("modalTreeName").textContent = plant.name;
   document.getElementById("modalTreeDesc").textContent = plant.description;
   document.getElementById("modalTreeCategory").textContent = plant.category;
