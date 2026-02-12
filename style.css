@@ -108,6 +108,12 @@ body {
   text-decoration: none;
 }
 
+.cta-btn:hover {
+  background: #ecbb27f1;
+  color: #1b1b1b;
+  cursor: pointer;
+}
+
 .cta-btn {
   background: #f4c430;
   border: none;
@@ -129,6 +135,12 @@ body {
 .hero h1 {
   font-size: 36px;
   margin-bottom: 15px;
+}
+
+.primary-btn:hover {
+  background: #ecbb27f1;
+  color: #1b1b1b;
+  cursor: pointer;
 }
 
 .primary-btn {
