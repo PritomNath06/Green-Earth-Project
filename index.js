@@ -1,288 +1,247 @@
-let allCategories = [];
-let itemCount = 0;
-let totalPrice = 0;
-let cartItems = {};
-let currentCategory = "All Plants";
-let treesData = {};
+// ========================
+// DOM Elements
+// ========================
+const categoriesList = document.getElementById("categories-list"); // sidebar
+const productGrid = document.getElementById("product-grid");       // products section
+const cartItemsContainer = document.getElementById("cart-items"); // cart list
+const totalPriceEl = document.getElementById("total-price");      // total price
 
-const totalPriceEl = document.getElementById("total-price");
-const cartItemsContainer = document.getElementById("cart-items");
+
+
 const spinner = document.getElementById("spinner");
-const productGrid = document.querySelector(".product-grid");
-const sidebar = document.querySelector(".sidebar ul");
-const modal = document.getElementById("treeModal");
-const closeBtn = document.querySelector(".close");
 
-// Initialize
-function init() {
-  fetchCategoriesAndPlants();
-}
+  // ========================
+  // Spinner Controls
+  // ========================
+  function showSpinner() {
+    spinner.style.display = "block";
+  }
 
-// Fetch categories from API
-function fetchCategories() {
-  return fetch("https://openapi.programming-hero.com/api/categories")
-    .then(response => response.json())
+  function hideSpinner() {
+    spinner.style.display = "none";
+  }
+
+// ========================
+// Cart Data
+// ========================
+let cart = []; // stores added plants
+
+// ========================
+// 1️⃣ Fetch all categories and display as sidebar buttons
+// ========================
+fetch("https://openapi.programming-hero.com/api/categories")
+  .then(res => res.json())
+  .then(data => {
+    const categories = data.categories || [];
+
+    categories.forEach(cat => {
+      const li = document.createElement("li");
+      li.textContent = cat.category_name;
+      li.classList.add("category-btn");
+      li.dataset.id = cat.id;
+      categoriesList.appendChild(li);
+
+      // Click category to load plants
+      li.addEventListener("click", () => {
+        // Highlight selected category
+        document.querySelectorAll(".category-btn").forEach(el => el.classList.remove("active"));
+        li.classList.add("active");
+
+        fetchPlantsByCategory(cat.id);
+      });
+    });
+
+    // Automatically select the first category
+    if (categories.length > 0) {
+      categoriesList.firstChild.classList.add("active");
+      fetchPlantsByCategory(categories[0].id);
+    }
+  })
+  .catch(err => console.error("Error fetching categories:", err));
+
+// ========================
+// 2️⃣ Fetch plants by category and show in product grid
+// ========================
+function fetchPlantsByCategory(categoryId) {
+  productGrid.innerHTML = "Loading plants...";
+
+  fetch(`https://openapi.programming-hero.com/api/category/${categoryId}`)
+    .then(res => res.json())
     .then(data => {
-      allCategories = data.data || [];
-      return allCategories;
+      const plants = data.plants || [];
+      productGrid.innerHTML = ""; // clear previous products
+
+      if (plants.length === 0) {
+        productGrid.textContent = "No plants found in this category.";
+        return;
+      }
+
+      plants.forEach(plant => {
+        const card = document.createElement("div");
+        card.classList.add("card");
+
+        card.innerHTML = `
+          <div class="card-image">
+            <img src="${plant.image}" alt="${plant.name}" style="width:100%; height:200px; object-fit:cover;">
+          </div>
+          <div class="card-content">
+            <h3 class="tree-name">${plant.name}</h3>
+            <p class="tree-desc">${plant.description}</p>
+            <span class="tree-tag">${plant.category}</span>
+            <div class="card-footer">
+              <span class="price">৳${plant.price}</span>
+              <button class="add-btn">Add to Cart</button>
+            </div>
+          </div>
+        `;
+
+        productGrid.appendChild(card);
+
+        // Click "Add to Cart"
+        const addBtn = card.querySelector(".add-btn");
+        addBtn.addEventListener("click", () => {
+          addToCart(plant);
+        });
+      });
     })
-    .catch(error => {
-      console.error("Error fetching categories:", error);
-      return [];
+    .catch(err => {
+      productGrid.textContent = "Error loading plants.";
+      console.error("Error fetching plants by category:", err);
     });
 }
 
-// Fetch plants from API
-function fetchPlantsData() {
-  return fetch("https://openapi.programming-hero.com/api/plants")
-    .then(response => response.json())
-    .then(data => data.data)
-    .catch(error => {
-      console.error("Error fetching plants:", error);
-      return [];
-    });
-}
-
-// Master initialization - fetch both categories and plants
-function fetchCategoriesAndPlants() {
-  spinner.classList.add("show");
-  
-  Promise.all([fetchCategories(), fetchPlantsData()])
-    .then(([categories, plants]) => {
-      organizeDataByCategory(plants, categories);
-      loadCategories();
-      loadTrees("All Plants");
-      setupEventListeners();
-      spinner.classList.remove("show");
-    })
-    .catch(error => {
-      console.error("Error initializing app:", error);
-      alert("Failed to load data. Please refresh the page.");
-      spinner.classList.remove("show");
-    });
-}
-
-// Organize API data by category
-function organizeDataByCategory(plants, categories) {
-  const organizedData = {};
-  
-  // Initialize All Plants category
-  organizedData["All Plants"] = [];
-  
-  // Initialize categories from API
-  categories.forEach(cat => {
-    organizedData[cat.name] = [];
-  });
-  
-  plants.forEach((plant, index) => {
-    const transformedPlant = {
-      id: plant.id || index,
-      name: plant.name || "Unknown Plant",
-      category: plant.category || "Uncategorized",
-      price: plant.price || 300,
-      description: plant.description || "A beautiful plant for your garden."
-    };
-    
-    // Add to All Plants
-    organizedData["All Plants"].push(transformedPlant);
-    
-    // Add to category-specific if it exists
-    if (organizedData[transformedPlant.category]) {
-      organizedData[transformedPlant.category].push(transformedPlant);
-    }
-  });
-  
-  treesData = organizedData;
-}
-
-// Load categories dynamically
-function loadCategories() {
-  sidebar.innerHTML = "";
-  
-  for (const category of Object.keys(treesData)) {
-    const li = document.createElement("li");
-    if (category === "All Plants") {
-      li.classList.add("active");
-    }
-    li.textContent = category;
-    li.addEventListener("click", () => {
-      document.querySelectorAll(".sidebar li").forEach(item => item.classList.remove("active"));
-      li.classList.add("active");
-      currentCategory = category;
-      loadTrees(category);
-    });
-    sidebar.appendChild(li);
-  }
-}
-
-// Load trees for a category
-function loadTrees(category) {
-  spinner.classList.add("show");
-  
-  setTimeout(() => {
-    const plants = treesData[category] || [];
-    renderCards(plants);
-    spinner.classList.remove("show");
-  }, 300);
-}
-
-// Render cards in 3-column grid
-function renderCards(plants) {
-  productGrid.innerHTML = "";
-  
-  if (plants.length === 0) {
-    productGrid.innerHTML = "<p style='grid-column: 1/-1; text-align: center; padding: 40px;'>No plants found in this category.</p>";
-    return;
-  }
-  
-  plants.forEach(plant => {
-    const card = document.createElement("div");
-    card.className = "card";
-    
-    card.innerHTML = `
-      <div class="card-image"></div>
-      <div class="card-content">
-        <h3 class="tree-name" style="cursor: pointer; color: #177d3a; text-decoration: underline;">${plant.name}</h3>
-        <p class="tree-desc">${plant.description}</p>
-        <span class="tree-tag">${plant.category}</span>
-        <div class="card-footer">
-          <span class="price">৳${plant.price}</span>
-          <button class="add-btn">Add to Cart</button>
-        </div>
-      </div>
-    `;
-    
-    const treeName = card.querySelector(".tree-name");
-    treeName.addEventListener("click", () => openModal(plant));
-    
-    const addBtn = card.querySelector(".add-btn");
-    addBtn.addEventListener("click", () => addToCartWithSpinner(plant));
-    
-    productGrid.appendChild(card);
-  });
-}
-
-// Add to Cart with spinner
-function addToCartWithSpinner(plant) {
-  spinner.classList.add("show");
-  
-  setTimeout(() => {
-    addToCart(plant);
-    spinner.classList.remove("show");
-    alert(`🌱 ${plant.name} added to cart!`);
-  }, 500);
-}
-
-// Add item to cart
+// ========================
+// Add plant to cart
+// ========================
 function addToCart(plant) {
-  if (cartItems[plant.name]) {
-    cartItems[plant.name].quantity++;
+  const existing = cart.find(item => item.id === plant.id);
+  if (existing) {
+    existing.quantity += 1;
   } else {
-    cartItems[plant.name] = { price: plant.price, quantity: 1 };
+    cart.push({...plant, quantity: 1});
   }
-  
-  totalPrice += plant.price;
-  itemCount++;
   renderCart();
 }
 
-// Render cart items
+// ========================
+// Remove one quantity of plant from cart
+// ========================
+function removeOneFromCart(plantId) {
+  const item = cart.find(i => i.id === plantId);
+  if (!item) return;
+
+  item.quantity -= 1; // reduce quantity by 1
+  if (item.quantity <= 0) {
+    // remove completely if quantity reaches 0
+    cart = cart.filter(i => i.id !== plantId);
+  }
+  renderCart();
+}
+
+// ========================
+// Render Cart Items
+// ========================
 function renderCart() {
-  cartItemsContainer.innerHTML = "";
-  
-  for (const [itemName, itemData] of Object.entries(cartItems)) {
-    const cartItem = document.createElement("div");
-    cartItem.className = "cart-item";
-    cartItem.dataset.itemName = itemName;
-    
-    cartItem.innerHTML = `
-      <div class="item-info">
-        <strong>${itemName}</strong>
-        <p>৳${itemData.price} × ${itemData.quantity}</p>
-      </div>
-      <button class="remove-btn">×</button>
+  cartItemsContainer.innerHTML = ""; // clear cart
+
+  if (cart.length === 0) {
+    cartItemsContainer.textContent = "Your cart is empty.";
+    totalPriceEl.textContent = "৳0";
+    return;
+  }
+
+  let total = 0;
+
+  cart.forEach(item => {
+    const div = document.createElement("div");
+    div.classList.add("cart-item");
+    div.style.display = "flex";
+    div.style.justifyContent = "space-between";
+    div.style.alignItems = "center";
+    div.style.marginBottom = "8px";
+
+    // Left side: Plant name (bold) + price x quantity
+    const left = document.createElement("div");
+    left.innerHTML = `
+      <strong>${item.name}</strong><br>
+      ৳${item.price} x ${item.quantity}
     `;
+
+    // Right side: red X for removing one quantity
+    const right = document.createElement("span");
+    right.textContent = "×";
+    right.style.color = "red";
+    right.style.cursor = "pointer";
+    right.style.fontWeight = "bold";
+    right.style.fontSize = "22px"; // slightly bigger
+    right.style.transition = "transform 0.2s";
     
-    cartItemsContainer.appendChild(cartItem);
-  }
-  
-  totalPriceEl.innerText = `৳${totalPrice}`;
-  attachRemoveListeners();
-}
-
-// Attach remove button listeners
-function attachRemoveListeners() {
-  const removeButtons = document.querySelectorAll(".remove-btn");
-  removeButtons.forEach(button => {
-    button.addEventListener("click", function () {
-      const cartItem = this.closest(".cart-item");
-      const itemName = cartItem.dataset.itemName;
-      const itemData = cartItems[itemName];
-      
-      totalPrice -= itemData.price * itemData.quantity;
-      itemCount -= itemData.quantity;
-      delete cartItems[itemName];
-      
-      renderCart();
+    // Hover effect
+    right.addEventListener("mouseover", () => {
+      right.style.transform = "scale(1.3)";
     });
-  });
-}
-
-// Open modal with plant details
-function openModal(plant) {
-  document.getElementById("modalImage").src = "about.png";
-  document.getElementById("modalTreeName").textContent = plant.name;
-  document.getElementById("modalTreeDesc").textContent = plant.description;
-  document.getElementById("modalTreeCategory").textContent = plant.category;
-  document.getElementById("modalTreePrice").textContent = `৳${plant.price}`;
-  
-  const modalAddBtn = document.getElementById("modalAddBtn");
-  modalAddBtn.onclick = () => {
-    addToCartWithSpinner(plant);
-    modal.style.display = "none";
-  };
-  
-  modal.style.display = "block";
-}
-
-// Setup event listeners
-function setupEventListeners() {
-  closeBtn.addEventListener("click", () => {
-    modal.style.display = "none";
-  });
-  
-  window.addEventListener("click", (event) => {
-    if (event.target === modal) {
-      modal.style.display = "none";
-    }
-  });
-  
-  const plantForm = document.getElementById("plant-form");
-  if (plantForm) {
-    plantForm.addEventListener("submit", e => {
-      e.preventDefault();
-      alert("🌱 Thank you for supporting Green Earth!");
-      e.target.reset();
+    right.addEventListener("mouseout", () => {
+      right.style.transform = "scale(1)";
     });
-  }
-  
+
+    // On click, remove one quantity
+    right.addEventListener("click", () => removeOneFromCart(item.id));
+
+    div.appendChild(left);
+    div.appendChild(right);
+
+    cartItemsContainer.appendChild(div);
+
+    total += item.price * item.quantity;
+  });
+
+  totalPriceEl.textContent = `৳${total}`;
+}
+
+// ========================
+// Count-Up Animation with + Sign
+// ========================
+document.addEventListener("DOMContentLoaded", () => {
   const counters = document.querySelectorAll(".counter");
+
   counters.forEach(counter => {
-    const updateCounter = () => {
-      const target = +counter.getAttribute("data-target");
-      const current = +counter.innerText;
-      const increment = target / 100;
-      
-      if (current < target) {
-        counter.innerText = Math.ceil(current + increment);
-        setTimeout(updateCounter, 20);
-      } else {
-        counter.innerText = target + "+";
+    const targetText = counter.dataset.target; // e.g., "500K", "120", "30"
+    
+    // Extract numeric part only for counting
+    let targetNumber = parseInt(targetText.replace(/\D/g, ""));
+    let suffix = targetText.replace(/\d/g, ""); // keep K if exists
+
+    let count = 0;
+    const speed = Math.ceil(targetNumber / 20); // adjust speed
+
+    const updateCount = () => {
+      count += speed;
+      if (count > targetNumber) count = targetNumber;
+      counter.textContent = `${count}${suffix}+`; // always add +
+
+      if (count < targetNumber) {
+        requestAnimationFrame(updateCount); // smooth animation
       }
     };
-    
-    updateCounter();
-  });
-}
 
-document.addEventListener("DOMContentLoaded", init);
+    updateCount();
+  });
+});
+
+// ========================
+// Smooth Scroll for Buttons
+// ========================
+
+// Navbar Plant a Tree → Impact section
+const navbarPlantBtn = document.getElementById("navbar-plant-tree");
+const impactSection = document.getElementById("impact-section");
+navbarPlantBtn.addEventListener("click", () => {
+  impactSection.scrollIntoView({ behavior: "smooth" });
+});
+
+// Hero Get Involved → Choose Your Trees section
+const heroBtn = document.getElementById("hero-get-involved");
+const productSection = document.getElementById("product-grid-section");
+heroBtn.addEventListener("click", () => {
+  productSection.scrollIntoView({ behavior: "smooth" });
+});

@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <title>Green Earth</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  
   <!-- LOADING SPINNER -->
-  <div class="spinner" id="spinner"></div>
+<div id="spinner" class="spinner" style="display: none;"></div>
 
-  <!-- MODAL -->
+  <!-- MODAL FOR PLANT DETAILS -->
   <div class="modal" id="treeModal">
     <div class="modal-content">
       <span class="close">&times;</span>
@@ -34,122 +34,34 @@
       <a href="#">Gallery</a>
       <a href="#">Plant a Tree</a>
     </div>
-    <button class="cta-btn">Plant a Tree</button>
+<button class="cta-btn" id="navbar-plant-tree">Plant a Tree</button> 
   </nav>
 
   <!-- HERO -->
-  <section class="hero">
+  <section class="hero" id="hero-section">
     <img src="hero-leaf1.png" alt="leaf" class="hero-leaf hero-leaf-1">
     <h1>Plant a Tree, Grow a Future</h1>
-    <p>Join our mission to plant 1 million trees and make the Earth greener for future
-generations.</p>
-    <button class="primary-btn">Get Involved</button>
+    <p>Join our mission to plant 1 million trees and make the Earth greener for future generations.</p>
+    <button class="primary-btn" id="hero-get-involved">Get Involved</button>
     <img src="hero-leaf2.png" alt="leaf" class="hero-leaf hero-leaf-2">
   </section>
 
   <!-- MAIN CONTENT -->
-  <main class="container">
+  <main class="container" id="plant-section">
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
       <h3>Categories</h3>
-      <ul>
-        <li class="active">All Trees</li>
-        <li>Fruit Trees</li>
-        <li>Flowering Trees</li>
-        <li>Shade Trees</li>
-        <li>Medicinal Trees</li>
-        <li>Timber Trees</li>
-        <li>Evergreen Trees</li>
-        <li>Ornamental Plants</li>
-        <li>Bamboo</li>
-        <li>Climbers</li>
-        <li>Aquatic</li>
+      <ul id="categories-list">
+        <!-- Categories will be populated dynamically by JS -->
       </ul>
     </aside>
 
     <!-- PRODUCTS -->
-    <section class="products">
+  <section class="products" id="product-grid-section">
       <h2>Choose Your Trees</h2>
-
-      <div class="product-grid">
-        <div class="card">
-          <div class="card-image"></div>
-          <div class="card-content">
-            <h3 class="tree-name">Mango Tree</h3>
-            <p class="tree-desc">A fast-growing tropical tree that produces delicious, juicy mangoes during summer. Its dense green foliage provides excellent shade.</p>
-            <span class="tree-tag">Fruit Tree</span>
-            <div class="card-footer">
-              <span class="price">৳500</span>
-              <button class="add-btn">Add to Cart</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-image"></div>
-          <div class="card-content">
-            <h3 class="tree-name">Neem Tree</h3>
-            <p class="tree-desc">A medicinal tree known for its antibacterial and antifungal properties. Its leaves are used in traditional medicine and natural remedies.</p>
-            <span class="tree-tag">Medicinal Tree</span>
-            <div class="card-footer">
-              <span class="price">৳400</span>
-              <button class="add-btn">Add to Cart</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-image"></div>
-          <div class="card-content">
-            <h3 class="tree-name">Banyan Tree</h3>
-            <p class="tree-desc">An ancient and sacred tree with massive aerial roots. Provides shelter and food for countless birds and small animals in its expansive canopy.</p>
-            <span class="tree-tag">Forest Tree</span>
-            <div class="card-footer">
-              <span class="price">৳600</span>
-              <button class="add-btn">Add to Cart</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-image"></div>
-          <div class="card-content">
-            <h3 class="tree-name">Peepal Tree</h3>
-            <p class="tree-desc">A spiritually significant tree that produces oxygen throughout the day. Its heart-shaped leaves provide excellent coverage and natural cooling.</p>
-            <span class="tree-tag">Forest Tree</span>
-            <div class="card-footer">
-              <span class="price">৳450</span>
-              <button class="add-btn">Add to Cart</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-image"></div>
-          <div class="card-content">
-            <h3 class="tree-name">Guava Tree</h3>
-            <p class="tree-desc">A hardy fruit tree that thrives in various climates. Produces nutritious guava fruits rich in vitamin C and acts as a natural air purifier.</p>
-            <span class="tree-tag">Fruit Tree</span>
-            <div class="card-footer">
-              <span class="price">৳350</span>
-              <button class="add-btn">Add to Cart</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-image"></div>
-          <div class="card-content">
-            <h3 class="tree-name">Lemon Tree</h3>
-            <p class="tree-desc">A citrus tree that produces fresh, juicy lemons year-round. Compact size makes it perfect for small gardens and patios and is a great addition to any home garden.</p>
-            <span class="tree-tag">Fruit Tree</span>
-            <div class="card-footer">
-              <span class="price">৳300</span>
-              <button class="add-btn">Add to Cart</button>
-            </div>
-          </div>
-        </div>
+      <div class="product-grid" id="product-grid">
+        <!-- Plant cards will be populated dynamically by JS -->
       </div>
     </section>
 
@@ -165,23 +77,17 @@ generations.</p>
 
   </main>
 
-  <!-- About Section -->
+  <!-- ABOUT SECTION -->
   <section class="about">
     <h2>About the Campaign</h2>
-
     <div class="about-container">
       <div class="about-image">
         <img src="about.png" alt="Plant Image">
       </div>
-
       <div class="about-text">
         <p>
-          Green Earth is a global tree plantation initiative dedicated to fighting
-          climate change. Since our start, we've planted over 500,000 trees
-          worldwide. By joining our campaign, you help restore forests, create
-          habitats for wildlife, and combat global warming.
+          Green Earth is a global tree plantation initiative dedicated to fighting climate change. Since our start, we've planted over 500,000 trees worldwide. By joining our campaign, you help restore forests, create habitats for wildlife, and combat global warming.
         </p>
-
         <ul>
           <li>Restoration of natural habitats</li>
           <li>Improvement of air quality</li>
@@ -191,21 +97,18 @@ generations.</p>
     </div>
   </section>
 
-  <!-- Impact Section -->
-  <section class="impact">
+  <!-- IMPACT SECTION -->
+<section class="impact" id="impact-section">
     <h2>Our Impact</h2>
-
     <div class="impact-container">
       <div class="impact-box">
-        <h3 class="counter" data-target="500">0</h3>
+        <h3 class="counter" data-target="500k">0</h3>
         <p>Trees Planted</p>
       </div>
-
       <div class="impact-box">
         <h3 class="counter" data-target="120">0</h3>
         <p>Communities Involved</p>
       </div>
-
       <div class="impact-box">
         <h3 class="counter" data-target="30">0</h3>
         <p>Countries Reached</p>
